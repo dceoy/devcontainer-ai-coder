@@ -1,0 +1,28 @@
+---
+services:
+  cli:
+    container_name: cli
+    image: dceoy/cli:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cli
+      platforms:
+        - linux/arm64
+        - linux/amd64
+      args:
+        UBUNTU_VERSION: '24.04'
+        PYTHON_VERSION: '3.13'
+        USER_NAME: cli
+        USER_UID: 1001
+        USER_GID: 1001
+      cache_from:
+        - type=gha
+      cache_to:
+        - type=gha,mode=max
+    volumes:
+      - .:/wd
+    working_dir: /wd
+    entrypoint:
+      - /usr/bin/zsh
+      - -l
