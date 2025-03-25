@@ -66,7 +66,6 @@ ARG USER_GID=1001
 
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/keep-cache
-COPY --from=builder /root/.vimrc /root/.vimrc
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -99,18 +98,13 @@ RUN \
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
-      && useradd --uid "${USER_UID}" --gid "${USER_GID}" --shell /bin/bash --create-home "${USER_NAME}"
-
-RUN \
-      cp -a /root/.vimrc "/home/${USER_NAME}/.vimrc" \
-      && chown "${USER_NAME}:${USER_NAME}" "/home/${USER_NAME}/.vimrc"
+      && useradd --uid "${USER_UID}" --gid "${USER_GID}" --shell /usr/bin/zsh --create-home "${USER_NAME}"
 
 USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
 
 RUN \
-      chsh -s /usr/bin/zsh \
-      && curl -SL -o /tmp/install-ohmyzsh.sh \
+      curl -SL -o /tmp/install-ohmyzsh.sh \
         https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh \
       && chmod +x /tmp/install-ohmyzsh.sh \
       && /tmp/install-ohmyzsh.sh --unattended \
