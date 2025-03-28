@@ -1,8 +1,13 @@
 {
   "name": "AI Coder Dev Container",
   "dockerComposeFile": "compose.yml",
-  "service": "cli",
-  "workspaceFolder": "/wd",
+  "service": "cli-devcontainer",
+  "runServices": ["cli-devcontainer"],
+  "workspaceFolder": "/mnt/host",
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "PYTHONPATH": "/mnt/host"
+  },
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh"
   },
@@ -10,5 +15,9 @@
     "ms-python.python",
     "ms-azuretools.vscode-docker"
   ],
-  "postCreateCommand": "zsh -l"
+  "postStartCommand": "git config --global --add safe.directory /mnt/host",
+  "postCreateCommand": "zsh -l",
+  "customize": {
+    "memoryLimit": 8192
+  }
 }

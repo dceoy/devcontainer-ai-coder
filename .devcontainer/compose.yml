@@ -1,8 +1,8 @@
 ---
 services:
-  cli:
-    container_name: cli
-    image: dceoy/cli:latest
+  cli-devcontainer:
+    container_name: cli-devcontainer
+    image: dceoy/cli:devcontainer
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,8 +21,11 @@ services:
       cache_to:
         - type=gha,mode=max
     volumes:
-      - .:/wd
-    working_dir: /wd
+      - .:/mnt/host
+    working_dir: /mnt/host
     entrypoint:
       - /usr/bin/zsh
       - -l
+    command:
+      - sleep
+      - infinity
