@@ -51,7 +51,8 @@ RUN \
       ln -s "python${PYTHON_VERSION}" /usr/bin/python \
       && curl -SL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
       && /usr/bin/python /tmp/get-pip.py \
-      && /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local pip \
+      && /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local \
+        aider-install pip \
       && rm -f /tmp/get-pip.py
 
 # hadolint ignore=DL3016
@@ -59,7 +60,6 @@ RUN \
       --mount=type=cache,target=/root/.cache \
       npm update -g \
       && npm install -g @anthropic-ai/claude-code
-
 
 RUN \
       --mount=type=cache,target=/root/.cache \
