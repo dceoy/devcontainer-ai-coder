@@ -60,7 +60,7 @@ RUN \
 FROM public.ecr.aws/docker/library/ubuntu:${UBUNTU_VERSION} AS cli
 
 ARG PYTHON_VERSION=3.13
-ARG USER_NAME=cli
+ARG USER_NAME=devcontainer
 ARG USER_UID=1001
 ARG USER_GID=1001
 
@@ -111,8 +111,9 @@ RUN \
       && rm -f /tmp/install-ohmyzsh.sh
 
 RUN \
-      curl -SL -o "${HOME}/.oh-my-zsh/custom/themes/dceoy.zsh-theme" \
-        https://raw.githubusercontent.com/dceoy/ansible-dev-server/refs/heads/master/roles/cli/files/dceoy.zsh-theme
+      curl -fsSL -o "${HOME}/.oh-my-zsh/custom/themes/dceoy.zsh-theme" \
+        https://raw.githubusercontent.com/dceoy/ansible-dev-server/refs/heads/master/roles/cli/files/dceoy.zsh-theme \
+      && sed -ie 's/^ZSH_THEME=.*/ZSH_THEME="dceoy"/' "${HOME}/.zshrc"
 
 RUN \
       curl -SL -o "${HOME}/.vimrc" \
@@ -121,4 +122,4 @@ RUN \
 
 HEALTHCHECK NONE
 
-ENTRYPOINT ["/usr/local/bin/vim"]
+ENTRYPOINT ["/usr/bin/zsh"]

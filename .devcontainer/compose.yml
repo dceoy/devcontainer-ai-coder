@@ -1,8 +1,8 @@
 ---
 services:
-  cli-devcontainer:
-    container_name: cli-devcontainer
-    image: dceoy/cli:devcontainer
+  devcontainer:
+    container_name: devcontainer-ai-coder
+    image: dceoy/devcontainer-ai-coder:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,7 +13,7 @@ services:
       args:
         UBUNTU_VERSION: '24.04'
         PYTHON_VERSION: '3.13'
-        USER_NAME: cli
+        USER_NAME: devcontainer
         USER_UID: 1001
         USER_GID: 1001
       cache_from:
@@ -21,11 +21,10 @@ services:
       cache_to:
         - type=gha,mode=max
     volumes:
-      - .:/mnt/host
+      - ..:/mnt/host
     working_dir: /mnt/host
     entrypoint:
       - /usr/bin/zsh
-      - -l
     command:
-      - sleep
-      - infinity
+      - -c
+      - sleep infinity

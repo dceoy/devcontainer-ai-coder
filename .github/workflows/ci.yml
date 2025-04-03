@@ -1,0 +1,58 @@
+---
+name: CI/CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+    inputs:
+      workflow:
+        required: true
+        type: choice
+        options:
+          - lint-and-scan
+          - build
+        description: Choose the workflow to run
+        default: lint-and-scan
+jobs:
+  docker-lint-and-scan:
+    if: >
+      github.event_name == 'push'
+      || github.event_name == 'pull_request'
+      || (github.event_name == 'workflow_dispatch' && inputs.workflow == 'lint-and-scan')
+    permissions:
+      contents: write
+    uses: dceoy/gh-actions-for-devops/.github/workflows/docker-lint-and-scan.yml@main
+  docker-build-and-push:
+    if: >
+      github.event_name == 'push'
+      || (
+        github.event_name == 'workflow_dispatch'
+        && inputs.workflow == 'build'
+        && (! (failure() || cancelled()))
+      )
+    needs:
+      - docker-lint-and-scan
+    permissions:
+      contents: write
+      packages: write
+    uses: dceoy/gh-actions-for-devops/.github/workflows/docker-build-and-push.yml@main
+    with:
+      registry: ghcr.io
+      registry-user: ${{ github.repository_owner }}
+      image-name: ${{ github.repository }}
+      context: .
+      file: ./Dockerfile
+      platforms: linux/amd64,linux/arm64
+      push: true
+      scan-before-build: true
+      scan-after-build: false
+    secrets:
+      DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}

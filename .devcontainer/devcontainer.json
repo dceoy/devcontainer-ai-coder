@@ -1,10 +1,10 @@
 {
   "name": "AI Coder Dev Container",
-  "dockerComposeFile": "compose.yml",
-  "service": "cli-devcontainer",
-  "runServices": ["cli-devcontainer"],
+  "dockerComposeFile": "./compose.yml",
+  "service": "devcontainer",
+  "runServices": ["devcontainer"],
   "workspaceFolder": "/mnt/host",
-  "remoteUser": "vscode",
+  "remoteUser": "devcontainer",
   "remoteEnv": {
     "PYTHONPATH": "/mnt/host"
   },
@@ -16,6 +16,7 @@
     "EditorConfig.EditorConfig",
     "GitHub.copilot",
     "GitHub.copilot-chat",
+    "GitHub.vscode-github-actions",
     "MS-CEINTL.vscode-language-pack-ja",
     "REditorSupport.r",
     "RooVeterinaryInc.roo-cline",
