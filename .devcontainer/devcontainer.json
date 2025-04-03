@@ -1,6 +1,6 @@
 {
   "name": "AI Coder Dev Container",
-  "dockerComposeFile": "./compose.yml",
+  "dockerComposeFile": "../compose.yml",
   "service": "devcontainer",
   "runServices": ["devcontainer"],
   "workspaceFolder": "/mnt/host",
@@ -42,8 +42,5 @@
     "vscodevim.vim"
   ],
   "postStartCommand": "git config --global --add safe.directory /mnt/host",
-  "postCreateCommand": "zsh -l",
-  "customize": {
-    "memoryLimit": 8192
-  }
+  "postCreateCommand": "zsh -l"
 }

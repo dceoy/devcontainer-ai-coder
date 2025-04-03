@@ -21,7 +21,7 @@ services:
       cache_to:
         - type=gha,mode=max
     volumes:
-      - ..:/mnt/host
+      - .:/mnt/host
     working_dir: /mnt/host
     entrypoint:
       - /usr/bin/zsh
