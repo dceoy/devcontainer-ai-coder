@@ -25,20 +25,26 @@ RUN \
 RUN \
       --mount=type=cache,target=/var/cache/apt,sharing=locked \
       --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -y update \
-      && apt-get -y install --no-install-recommends --no-install-suggests \
-        software-properties-common \
+      apt-get -qy update \
+      && apt-get -qy install --no-install-recommends --no-install-suggests \
+        ca-certificates curl gnupg lsb-release software-properties-common \
       && add-apt-repository ppa:deadsnakes/ppa
+
+RUN \
+      curl -fsSL -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+        https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+      && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | tee /etc/apt/sources.list.d/github-cli.list
 
 # hadolint ignore=DL3008
 RUN \
       --mount=type=cache,target=/var/cache/apt,sharing=locked \
       --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -y update \
-      && apt-get -y upgrade \
-      && apt-get -y install --no-install-recommends --no-install-suggests \
-        ca-certificates curl gcc git libc6-dev libncurses-dev make nodejs npm \
-        "python${PYTHON_VERSION}-dev" unzip
+      apt-get -qy update \
+      && apt-get -qy upgrade \
+      && apt-get -qy install --no-install-recommends --no-install-suggests \
+        gcc gh git libc6-dev libncurses-dev make nodejs npm "python${PYTHON_VERSION}-dev" unzip
 
 RUN \
       --mount=type=cache,target=/root/.cache \
@@ -98,19 +104,23 @@ RUN \
 RUN \
       --mount=type=cache,target=/var/cache/apt,sharing=locked \
       --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -y update \
-      && apt-get -y install --no-install-recommends --no-install-suggests \
+      apt-get -qy update \
+      && apt-get -qy install --no-install-recommends --no-install-suggests \
         software-properties-common \
       && add-apt-repository ppa:deadsnakes/ppa
+
+COPY --from=builder /usr/share/keyrings/githubcli-archive-keyring.gpg /usr/share/keyrings/githubcli-archive-keyring.gpg
+COPY --from=builder /etc/apt/sources.list.d/github-cli.list /etc/apt/sources.list.d/github-cli.list
 
 # hadolint ignore=DL3008
 RUN \
       --mount=type=cache,target=/var/cache/apt,sharing=locked \
       --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -y update \
-      && apt-get -y upgrade \
-      && apt-get -y install --no-install-recommends --no-install-suggests \
-        ca-certificates colordiff curl git nodejs npm "python${PYTHON_VERSION}" sudo time tree wget zsh
+      apt-get -qy update \
+      && apt-get -qy upgrade \
+      && apt-get -qy install --no-install-recommends --no-install-suggests \
+        build-essential ca-certificates colordiff curl gh git nodejs npm \
+        "python${PYTHON_VERSION}" sudo time tree wget zsh
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
