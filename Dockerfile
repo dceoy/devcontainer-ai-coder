@@ -37,15 +37,31 @@ RUN \
       apt-get -y update \
       && apt-get -y upgrade \
       && apt-get -y install --no-install-recommends --no-install-suggests \
-        ca-certificates curl gcc git libc6-dev libncurses-dev make \
-        "python${PYTHON_VERSION}-dev"
+        ca-certificates curl gcc git libc6-dev libncurses-dev make nodejs npm \
+        "python${PYTHON_VERSION}-dev" unzip
 
 RUN \
       --mount=type=cache,target=/root/.cache \
       ln -s "python${PYTHON_VERSION}" /usr/bin/python \
       && curl -SL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
       && /usr/bin/python /tmp/get-pip.py \
+      && /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local pip \
       && rm -f /tmp/get-pip.py
+
+# hadolint ignore=DL3016
+RUN \
+      --mount=type=cache,target=/root/.cache \
+      npm update -g \
+      && npm install -g @anthropic-ai/claude-code
+
+
+RUN \
+      --mount=type=cache,target=/root/.cache \
+      curl -fsSL -o /tmp/awscliv2.zip \
+        "https://awscli.amazonaws.com/awscli-exe-linux-$([ "$(uname -m)" = 'x86_64' ] && echo 'x86_64' || echo 'aarch64').zip" \
+      && unzip /tmp/awscliv2.zip -d /tmp \
+      && /tmp/aws/install \
+      && rm -rf /tmp/awscliv2.zip /tmp/aws
 
 RUN \
       --mount=type=cache,target=/root/.cache \
@@ -94,7 +110,7 @@ RUN \
       apt-get -y update \
       && apt-get -y upgrade \
       && apt-get -y install --no-install-recommends --no-install-suggests \
-        ca-certificates curl git "python${PYTHON_VERSION}" sudo zsh
+        ca-certificates colordiff curl git nodejs npm "python${PYTHON_VERSION}" sudo time tree wget zsh
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
