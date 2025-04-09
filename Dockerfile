@@ -52,14 +52,15 @@ RUN \
       && curl -SL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
       && /usr/bin/python /tmp/get-pip.py \
       && /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local \
-        aider-install pip \
+        aider-install pip pipx poetry uv \
       && rm -f /tmp/get-pip.py
 
 # hadolint ignore=DL3016
 RUN \
       --mount=type=cache,target=/root/.cache \
       npm update -g \
-      && npm install -g @anthropic-ai/claude-code
+      && npm install -g \
+        npx @anthropic-ai/claude-code
 
 RUN \
       --mount=type=cache,target=/root/.cache \
