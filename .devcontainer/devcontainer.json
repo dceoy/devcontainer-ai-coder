@@ -3,10 +3,10 @@
   "dockerComposeFile": "../compose.yml",
   "service": "devcontainer",
   "runServices": ["devcontainer"],
-  "workspaceFolder": "/mnt/host",
+  "workspaceFolder": "/workspaces",
   "remoteUser": "devcontainer",
   "remoteEnv": {
-    "PYTHONPATH": "/mnt/host"
+    "PYTHONPATH": "/workspaces"
   },
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh"

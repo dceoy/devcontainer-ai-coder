@@ -83,7 +83,7 @@ RUN \
 FROM public.ecr.aws/docker/library/ubuntu:${UBUNTU_VERSION} AS cli
 
 ARG PYTHON_VERSION=3.13
-ARG USER_NAME=devcontainer
+ARG USER_NAME=vscode
 ARG USER_UID=1001
 ARG USER_GID=1001
 

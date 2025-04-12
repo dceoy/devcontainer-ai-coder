@@ -13,7 +13,7 @@ services:
       args:
         UBUNTU_VERSION: '24.04'
         PYTHON_VERSION: '3.13'
-        USER_NAME: devcontainer
+        USER_NAME: vscode
         USER_UID: 1001
         USER_GID: 1001
       cache_from:
@@ -21,8 +21,8 @@ services:
       cache_to:
         - type=gha,mode=max
     volumes:
-      - .:/mnt/host
-    working_dir: /mnt/host
+      - .:/workspaces
+    working_dir: /workspaces
     entrypoint:
       - /usr/bin/zsh
     command:
