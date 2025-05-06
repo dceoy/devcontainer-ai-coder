@@ -1,12 +1,45 @@
 {
   "name": "AI Coder Dev Container",
-  "dockerComposeFile": "../compose.yml",
-  "service": "devcontainer",
-  "runServices": ["devcontainer"],
-  "workspaceFolder": "/workspaces",
-  "remoteUser": "devcontainer",
-  "remoteEnv": {
-    "PYTHONPATH": "/workspaces"
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": "..",
+    "target": "cli",
+    "args": {
+      "UBUNTU_VERSION": "24.04",
+      "PYTHON_VERSION": "3.13",
+      "USER_NAME": "vscode",
+      "USER_UID": 1001,
+      "USER_GID": 1001
+    }
+  },
+  "mounts": [
+    {
+      "source": "${localEnv:HOME}/.gitconfig",
+      "target": "${containerEnv:HOME}/.gitconfig",
+      "type": "bind",
+      "consistency": "cached"
+    },
+    {
+      "source": "${localEnv:HOME}/.aws",
+      "target": "${containerEnv:HOME}/.aws",
+      "type": "bind",
+      "consistency": "cached"
+    }
+  ],
+  "workspaceFolder": "/workspace",
+  "workspaceMount": {
+    "source": "${localWorkspaceFolder}",
+    "target": "${workspaceFolder}",
+    "type": "bind",
+    "consistency": "consistent"
+  },
+  "runArgs": [
+    "-c",
+    "sleep infinity"
+  ],
+  "containerUser": "vscode",
+  "containerEnv": {
+    "PYTHONPATH": "${workspaceFolder}"
   },
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh"
@@ -43,6 +76,5 @@
     "streetsidesoftware.code-spell-checker",
     "vscodevim.vim"
   ],
-  "postStartCommand": "git config --global --add safe.directory /mnt/host",
-  "postCreateCommand": "zsh -l"
+  "postStartCommand": "git config --global --add safe.directory ${workspaceFolder} && git config core.pager ''"
 }

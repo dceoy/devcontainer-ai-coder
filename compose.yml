@@ -13,7 +13,7 @@ services:
       args:
         UBUNTU_VERSION: '24.04'
         PYTHON_VERSION: '3.13'
-        USER_NAME: vscode
+        USER_NAME: cli
         USER_UID: 1001
         USER_GID: 1001
       cache_from:
@@ -21,8 +21,10 @@ services:
       cache_to:
         - type=gha,mode=max
     volumes:
-      - .:/workspaces
-    working_dir: /workspaces
+      - ${PWD}:/workspace
+      - ${HOME}/.aws:/home/cli/.aws
+      - ${HOME}/.gitconfig:/home/cli/.gitconfig
+    working_dir: /workspace
     entrypoint:
       - /usr/bin/zsh
     command:
