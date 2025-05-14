@@ -2,7 +2,7 @@
 
 **Role:** *You are a **Senior Solutions Architect** with expertise in cloud-based system design and technical documentation.*
 
-**Task:** *Write a comprehensive **Cloud System Design Document** for the system described below. Please ensure the document covers the following sections with the specified level of detail.*
+**Task:** *Write a comprehensive **Cloud System Design Document** for the system described below. Provide complete, unabridged outputs without omitting any parts. Please ensure the document covers the following sections with the specified level of detail.*
 
 **System Description:**
 `"<Provide a CLEAR and SPECIFIC description of the system. Include its purpose, primary goals, target users, key functionalities, and any known constraints or technologies to consider. The more CONTEXT and BACKGROUND INFORMATION you provide, the better the LLM can tailor the document. e.g., An e-commerce web application for selling handmade crafts, hosted on AWS, aiming for high availability and a seamless user experience for non-technical sellers and buyers. Key features include product listing, shopping cart, secure payments, and order management.>" `
