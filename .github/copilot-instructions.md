@@ -1,35 +1,92 @@
-# Copilot Agent Instructions
+# GitHub Copilot Instructions
+_This file guides GitHub Copilot (Chat & Completions) when working in this
+repository.
+Treat every rule in this document as **high-priority** unless otherwise noted._
 
-In GitHub Copilot agent mode, no state is preserved between sessions. All past work and decisions must be documented in Markdown files within the "memory-bank" directory (the Memory Bank), which serves as the sole source of project information.
+---
 
-## Memory Bank Structure
+## 1. Project Memory
 
-- **projectbrief.md**: Project objectives, requirements, and goals. The foundation for everything.
-- **productContext.md**: Product background, problems to solve, and user experience goals.
-- **activeContext.md**: Current work focus, recent changes, next steps, key decisions, and learnings.
-- **systemPatterns.md**: System architecture, design patterns, and major technical decisions.
-- **techContext.md**: Technologies used, development environment, constraints, and dependencies.
-- **progress.md**: Progress, remaining tasks, known issues, and decision history.
+1. **Always load `CLAUDE.md` first.**
+   - Assume it contains the most up-to-date project knowledge, commands,
+     conventions, and architectural notes.
+   - When suggesting code or answers, cross-check with its content.
+2. **Never overwrite `CLAUDE.md` silently.**
+   - All edits to `CLAUDE.md` must be proposed _explicitly_ in chat or via
+     a code suggestion so a human can review.
 
-Create additional Markdown files as needed to organize feature specifications, API docs, testing strategies, deployment procedures, etc.
+---
 
-## Core Workflow
+## 2. Completions & Chat Guidance
 
-### 1. At the Start of Each Task
-- Always read all files in the memory-bank to understand the current state and plan your approach.
-- If any files are missing, plan to create them and share the plan in chat.
+### 2.1 General Behavior
+| Guideline | Example |
+|-----------|---------|
+| Follow the commands in **`CLAUDE.md` → “Commands”** for build, test & deploy. | If asked “How do I build?”, answer with the `npm run build` script listed there. |
+| Obey **code-style** & **lint rules** documented in `CLAUDE.md`. | Suggest 2-space indentation (not tabs) if `CLAUDE.md` says so. |
+| Prefer **existing utilities / helpers** over reinventing logic. | If a `Logger` class exists, propose using it for all logging. |
+| Provide reasons when offering multiple approaches. | “Option A uses memoization ✅ faster; Option B is simpler but slower.” |
 
-### 2. While Executing Tasks
-- Record the latest status and decisions in activeContext.md and progress.md, updating the memory-bank as you go.
-- When making significant changes or discovering new patterns, update all relevant files.
+### 2.2 Code Suggestions
+- **Imports:** Use absolute or relative paths exactly as shown in existing files.
+- **Tests:** Generate tests side-by-side with new code (same folder if pattern
+  exists).
+- **Comments:** Brief but descriptive.
+  _Do not_ insert large generated explanations inside the code.
 
-### 3. When to Update the Memory Bank
-- When new designs, patterns, or learnings are discovered
-- After major implementations or decisions
-- When the user requests "update memory bank" (in this case, review and update all files as needed)
-- When clarification of context is required
+---
 
-## Notes
-- The Copilot agent relies solely on the memory-bank for context. Incomplete documentation will result in less accurate assistance.
-- Keep activeContext.md and progress.md especially up to date.
-- Since the agent resets completely between sessions, the accuracy and completeness of the memory-bank is critical for project continuity.
+## 3. Workflow Conventions
+
+1. **Branch names** → `feat/<slug>` or `fix/<slug>` (lower-case, no spaces).
+2. **Commit messages** → Conventional Commits style
+   (`feat:`, `fix:`, `docs:` …).
+3. **Pull Requests**
+   - Auto-fill the PR template if present.
+   - Include a checklist of tests added/updated.
+4. **Changelogs** → If the repo has a `CHANGELOG.md`, append a new entry
+   under “Unreleased” in the same format.
+
+---
+
+## 4. Updating `CLAUDE.md`
+
+> **IMPORTANT:** All updates must be _human-approved_. Never apply changes
+> automatically.
+
+### 4.1 When to Propose an Update
+- A new command, script, or convention is introduced.
+- An existing rule in `CLAUDE.md` is no longer correct.
+- Repeated confusion in suggestions indicates missing memory.
+
+### 4.2 How to Propose
+1. In Copilot Chat, prefix with **“Update CLAUDE.md:”** then describe the bullet(s)
+   to add/modify.
+2. Or supply a code diff suggestion that edits `CLAUDE.md` only.
+
+---
+
+## 5. Constraints Checklist
+
+- **No secrets** in code or `CLAUDE.md`. Use placeholder env vars (e.g.
+  `${API_KEY}`).
+- **No destructive commands** (`rm -rf`, `git push --force`) in suggestions
+  unless explicitly asked.
+- **Context size:** Keep answers concise; summarize long file paths or logs.
+- **License headers:** If a new file type requires a header, include it.
+
+---
+
+## 6. Escalation
+
+If uncertain or conflicting rules arise:
+
+1. Re-read `CLAUDE.md` top-to-bottom.
+2. If still unclear, **ask the user** for clarification _before_ generating
+   code.
+
+---
+
+_© 2025 — Repository maintainers.
+Last updated: 2025-05-29_
+
