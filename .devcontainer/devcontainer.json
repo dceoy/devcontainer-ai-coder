@@ -1,5 +1,5 @@
 {
-  "name": "AI Coder Dev Container",
+  "name": "AI coder devcontainer",
   "build": {
     "dockerfile": "../Dockerfile",
     "context": "..",
@@ -8,31 +8,16 @@
       "UBUNTU_VERSION": "24.04",
       "PYTHON_VERSION": "3.13",
       "USER_NAME": "vscode",
-      "USER_UID": 1001,
-      "USER_GID": 1001
+      "USER_UID": "1001",
+      "USER_GID": "1001"
     }
   },
   "mounts": [
-    {
-      "source": "${localEnv:HOME}/.gitconfig",
-      "target": "${containerEnv:HOME}/.gitconfig",
-      "type": "bind",
-      "consistency": "cached"
-    },
-    {
-      "source": "${localEnv:HOME}/.aws",
-      "target": "${containerEnv:HOME}/.aws",
-      "type": "bind",
-      "consistency": "cached"
-    }
+    "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
   ],
   "workspaceFolder": "/workspace",
-  "workspaceMount": {
-    "source": "${localWorkspaceFolder}",
-    "target": "${workspaceFolder}",
-    "type": "bind",
-    "consistency": "consistent"
-  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=consistent",
   "runArgs": [
     "-c",
     "sleep infinity"
@@ -41,40 +26,47 @@
   "containerEnv": {
     "PYTHONPATH": "${workspaceFolder}"
   },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "zsh"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      },
+      "extensions": [
+        "amazonwebservices.aws-toolkit-vscode",
+        "bierner.markdown-mermaid",
+        "davidanson.vscode-markdownlint",
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "github.codespaces",
+        "github.copilot",
+        "github.copilot-chat",
+        "github.github-vscode-theme",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker",
+        "ms-ceintl.vscode-language-pack-ja",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.remote-explorer",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode-remote.remote-ssh",
+        "ms-vscode-remote.remote-ssh-edit",
+        "ms-vscode-remote.remote-wsl",
+        "ms-vscode.remote-server",
+        "ms-vscode-remote.vscode-remote-extensionpack",
+        "ms-python.debugpy",
+        "reditorsupport.r",
+        "saoudrizwan.claude-dev",
+        "streetsidesoftware.code-spell-checker",
+        "vscodevim.vim"
+      ]
+    }
   },
-  "extensions": [
-    "amazonwebservices.aws-toolkit-vscode",
-    "bierner.markdown-mermaid",
-    "davidanson.vscode-markdownlint",
-    "dbaeumer.vscode-eslint",
-    "eamodio.gitlens",
-    "editorconfig.editorconfig",
-    "esbenp.prettier-vscode",
-    "github.codespaces",
-    "github.copilot",
-    "github.copilot-chat",
-    "github.github-vscode-theme",
-    "github.vscode-github-actions",
-    "github.vscode-pull-request-github",
-    "hashicorp.terraform",
-    "ms-azuretools.vscode-docker",
-    "ms-ceintl.vscode-language-pack-ja",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-vscode.remote-explorer",
-    "ms-vscode-remote.remote-containers",
-    "ms-vscode-remote.remote-ssh",
-    "ms-vscode-remote.remote-ssh-edit",
-    "ms-vscode-remote.remote-wsl",
-    "ms-vscode.remote-server",
-    "ms-vscode-remote.vscode-remote-extensionpack",
-    "ms-python.debugpy",
-    "reditorsupport.r",
-    "saoudrizwan.claude-dev",
-    "streetsidesoftware.code-spell-checker",
-    "vscodevim.vim"
-  ],
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli": {}
+  },
   "postStartCommand": "git config --global --add safe.directory ${workspaceFolder} && git config core.pager ''"
 }
