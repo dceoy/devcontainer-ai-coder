@@ -33,6 +33,7 @@
       },
       "extensions": [
         "amazonwebservices.aws-toolkit-vscode",
+        "anthropic.claude-code",
         "bierner.markdown-mermaid",
         "davidanson.vscode-markdownlint",
         "dbaeumer.vscode-eslint",
@@ -59,7 +60,6 @@
         "ms-vscode-remote.vscode-remote-extensionpack",
         "ms-python.debugpy",
         "reditorsupport.r",
-        "saoudrizwan.claude-dev",
         "streetsidesoftware.code-spell-checker",
         "vscodevim.vim"
       ]

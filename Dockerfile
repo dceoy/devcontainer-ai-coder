@@ -137,9 +137,7 @@ ARG USER_GID=1001
 # hadolint ignore=DL3016
 RUN \
       --mount=type=cache,target=/root/.cache \
-      /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local \
-        aider-install \
-      && npm install -g \
+      npm install -g \
         npx @anthropic-ai/claude-code @openai/codex
 
 RUN \
