@@ -17,8 +17,8 @@ This repository contains Docker container configurations for AI coding agents. I
 
 The container comes pre-installed with:
 - Claude Code CLI (`@anthropic-ai/claude-code`)
+- Gemini CLI (`@google/gemini-cli`)
 - OpenAI Codex (`@openai/codex`)
-- Aider (`aider-install`)
 
 ## Working with the Repository
 
@@ -60,3 +60,26 @@ The repository contains examples for generating cloud system design documents us
   - Oh My Zsh
   - AWS CLI
   - Node.js and npm
+
+## Web Search Instructions
+
+For tasks requiring web search, always use `gemini` command instead of the built-in web search tool.
+
+### Usage
+
+```sh
+# Basic search query
+gemini --prompt "WebSearch: <query>"
+
+# Example: Search for latest news
+gemini --prompt "WebSearch: What are the latest developments in AI?"
+```
+
+### Policy
+
+When users request information that requires web search:
+
+1. Use `gemini --prompt` command via terminal
+2. Parse and present the Gemini response appropriately
+
+This ensures consistent and reliable web search results through the Gemini API.
