@@ -69,55 +69,80 @@ For tasks requiring web search, always use `gemini` command instead of the built
 
 ```sh
 # Basic search query
-gemini --prompt "WebSearch: <query>"
+gemini --sandbox --prompt "WebSearch: <query>"
 
 # Example: Search for latest news
-gemini --prompt "WebSearch: What are the latest developments in AI?"
+gemini --sandbox --prompt "WebSearch: What are the latest developments in AI?"
 ```
 
 ### Policy
 
 When users request information that requires web search:
 
-1. Use `gemini --prompt` command via terminal
+1. Use `gemini --sandbox --prompt` command via terminal
 2. Parse and present the Gemini response appropriately
 
 This ensures consistent and reliable web search results through the Gemini API.
 
-## Code Refactoring Guidelines (Kent Beck's Tidying)
+## Development Methodology
 
-Follow Kent Beck's "Tidying" approach when refactoring code. The philosophy is: **"Make the change easy, then make the easy change."**
+This section combines essential guidance from Martin Fowler's refactoring, Kent Beck's tidying, and t_wada's TDD approaches.
 
-### Core Principles
+### Core Philosophy
 
-1. **Small, Safe Steps** - Make changes that are easily reversible and won't introduce bugs
-2. **Separate Commits** - Never mix structural changes (tidying) with behavioral changes (features/fixes)
-3. **Economic Decision** - Tidy when it makes the immediate task easier
+- **Small, safe, behavior-preserving changes** - Every change should be tiny, reversible, and testable
+- **Separate concerns** - Never mix adding features with refactoring/tidying
+- **Test-driven workflow** - Tests provide safety net and drive design
+- **Economic justification** - Only refactor/tidy when it makes immediate work easier
 
-### Key Tidying Operations
+### The Development Cycle
 
-1. **Guard Clause** - Replace nested conditionals with early returns
-2. **Dead Code Removal** - Delete unused code, comments, or imports
-3. **Explaining Variables** - Introduce variables for complex expressions
-4. **Explaining Constants** - Replace magic numbers with named constants
-5. **Extract Helper** - Move chunks of code into separate functions
-6. **Normalize Symmetries** - Make similar code look the same
-7. **Rationalize Names** - Improve variable/function names for clarity
+1. **Red** - Write a failing test first (TDD)
+2. **Green** - Write minimum code to pass the test
+3. **Refactor/Tidy** - Clean up without changing behavior
+4. **Commit** - Separate commits for features vs refactoring
 
-### When to Tidy
+### Essential Practices
 
-- Before adding features to messy code
-- When you're already reading and understanding code
-- As part of daily development workflow
-- Keep each tidying small and focused
-- Ensure tests pass after each tidying
+#### Before Coding
 
-### Tidying Workflow
+- Create TODO list for complex tasks
+- Ensure test coverage exists
+- Identify code smells (long functions, duplication, etc.)
 
-1. Identify needed behavioral change
-2. Examine the code - if messy, tidy first
-3. Commit tidyings as separate structural changes
-4. Implement behavioral change in clean code
-5. Commit behavioral change separately
+#### While Coding
 
-Remember: All tidyings are refactorings, but keep them small (minutes, not hours) and low-risk.
+- **Test-First**: Write the test before the implementation
+- **Small Steps**: Each change should be easily reversible
+- **Run Tests Frequently**: After each small change
+- **Two Hats**: Either add features OR refactor, never both
+
+#### Refactoring Techniques
+
+1. **Extract Function/Variable** - Improve readability
+2. **Rename** - Use meaningful names
+3. **Guard Clauses** - Replace nested conditionals
+4. **Remove Dead Code** - Delete unused code
+5. **Normalize Symmetries** - Make similar code consistent
+
+#### TDD Strategies
+
+1. **Fake It** - Start with hardcoded values
+2. **Obvious Implementation** - When solution is clear
+3. **Triangulation** - Multiple tests to find general solution
+
+### When to Apply
+
+- **Rule of Three**: Refactor on third duplication
+- **Preparatory**: Before adding features to messy code
+- **Comprehension**: As you understand code better
+- **Opportunistic**: Small improvements during daily work
+
+### Key Reminders
+
+- One assertion per test
+- Commit refactoring separately from features
+- Delete redundant tests
+- Focus on making code understandable to humans
+
+Quote: "Make the change easy, then make the easy change." - Kent Beck
