@@ -5,8 +5,14 @@ updates:
     directory: /
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
   - package-ecosystem: docker
     directories:
       - /.devcontainer/
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
