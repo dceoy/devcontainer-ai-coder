@@ -138,7 +138,7 @@ ARG USER_GID=1001
 RUN \
       --mount=type=cache,target=/root/.cache \
       npm install -g \
-        npx @anthropic-ai/claude-code @google/gemini-cli @openai/codex
+        @anthropic-ai/claude-code @google/gemini-cli @openai/codex
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
