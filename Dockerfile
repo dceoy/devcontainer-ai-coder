@@ -121,7 +121,7 @@ RUN \
       && apt-get -yqq upgrade \
       && apt-get -yqq install --no-install-recommends --no-install-suggests \
         build-essential ca-certificates colordiff curl gh git nodejs npm \
-        "python${PYTHON_VERSION}" sudo time tree wget zsh
+        "python${PYTHON_VERSION}" time tree wget zsh
 
 HEALTHCHECK NONE
 
