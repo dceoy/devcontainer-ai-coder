@@ -4,37 +4,28 @@
 
 - **Dockerfile**: Defines a multi-stage build for creating an Ubuntu-based container with Python, Node.js, and various AI tools
 - **compose.yml**: Docker Compose configuration for running the container
-- **misc/**: Contains miscellaneous prompts and research materials for AI design document generation
 
 ## Available AI Tools
 
 The container comes pre-installed with:
 
 - Anthropic Claude Code
-- Google Gemini CLI
 - OpenAI Codex CLI
-- GitHub Copilot CLI
+- Cursor CLI
+- OpenCode
 
 ## Working with the Repository
 
 ### Building the Container
 
 ```sh
-# Build the container image
-docker build -t devcontainer-ai-coder .
-
-# Alternatively, pull from GitHub Container Registry
-docker image pull ghcr.io/dceoy/devcontainer-ai-coder:latest
+docker compose build --pull
 ```
 
 ### Running the Container
 
 ```sh
-# Using docker-compose
-docker-compose up -d
-
-# Using docker directly
-docker run -v ${PWD}:/workspace -v ${HOME}/.aws:/home/cli/.aws -v ${HOME}/.gitconfig:/home/cli/.gitconfig -w /workspace --entrypoint /usr/bin/zsh -it dceoy/devcontainer-ai-coder:latest
+docker compose run --rm devcontainer -l
 ```
 
 ### Code Quality and Documentation
