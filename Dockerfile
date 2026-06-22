@@ -20,8 +20,9 @@ RUN \
       apt-get -yqq update \
       && apt-get -yqq upgrade \
       && apt-get -yqq install --no-install-recommends --no-install-suggests \
-        build-essential ca-certificates curl gh git gnupg jq lsb-release npm \
-        python3-pip ripgrep rsync software-properties-common tree unzip vim wget zsh
+        apt-file apt-transport-https apt-utils build-essential ca-certificates curl \
+        gh git gnupg jq lsb-release npm python3-pip ripgrep rsync \
+        software-properties-common tree unzip vim wget zsh
 
 # hadolint ignore=DL3013
 RUN \
