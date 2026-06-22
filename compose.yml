@@ -2,7 +2,7 @@
 services:
   devcontainer:
     container_name: devcontainer-ai-coder
-    image: dceoy/devcontainer-ai-coder:latest
+    image: ghcr.io/dceoy/devcontainer-ai-coder:latest
     build:
       context: .
       dockerfile: Dockerfile
