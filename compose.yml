@@ -9,24 +9,37 @@ services:
       target: cli
       platforms:
         - linux/arm64
-        - linux/amd64
+        # - linux/amd64
       args:
-        UBUNTU_VERSION: '26.04'
-        PYTHON_VERSION: '3.14'
-        USER_NAME: cli
-        USER_UID: 1001
-        USER_GID: 1001
+        UBUNTU_VERSION: '24.04'
+        USER_NAME: agent
+        USER_UID: '1001'
+        USER_GID: '1001'
+        ZSH_THEME: nicoulaj
       cache_from:
         - type=gha
       cache_to:
         - type=gha,mode=max
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    tty: true
+    stdin_open: true
     volumes:
-      - ${PWD}:/workspace
-      - ${HOME}/.aws:/home/cli/.aws
-      - ${HOME}/.gitconfig:/home/cli/.gitconfig
+      - .:/workspace
+      - home-data:/home/agent
+      - ${HOME}/.ssh:/home/agent/.ssh:ro
     working_dir: /workspace
+    post_start:
+      - command: bash -c '[[ -d /home/agent/.claude ]] || rsync -au /opt/claude/ /home/agent/'
+        user: root
+      - command: git config --global --add safe.directory /workspace
+        user: agent
+    user: agent
     entrypoint:
       - /usr/bin/zsh
     command:
       - -c
       - sleep infinity
+volumes:
+  home-data:

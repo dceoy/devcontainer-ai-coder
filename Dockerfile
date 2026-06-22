@@ -1,18 +1,10 @@
 # syntax=docker/dockerfile:1
 ARG UBUNTU_VERSION=24.04
-FROM public.ecr.aws/docker/library/ubuntu:${UBUNTU_VERSION} AS builder
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-${UBUNTU_VERSION} AS base
 
-ARG PYTHON_VERSION=3.13
-
-ENV DEBIAN_FRONTEND noninteractive
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONIOENCODING=utf-8
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PIP_NO_CACHE_DIR=1
-ENV POETRY_HOME=/opt/poetry
-ENV POETRY_VIRTUALENVS_CREATE=false
-ENV POETRY_NO_INTERACTION=true
+ARG USER_NAME='agent'
+ARG USER_UID='1001'
+ARG USER_GID='1001'
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
@@ -26,39 +18,21 @@ RUN \
       --mount=type=cache,target=/var/cache/apt,sharing=locked \
       --mount=type=cache,target=/var/lib/apt,sharing=locked \
       apt-get -yqq update \
-      && apt-get -yqq install --no-install-recommends --no-install-suggests \
-        ca-certificates curl gnupg lsb-release software-properties-common \
-      && add-apt-repository ppa:deadsnakes/ppa
-
-RUN \
-      curl -fsSL -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
-        https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-      && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-      && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-        | tee /etc/apt/sources.list.d/github-cli.list
-
-# hadolint ignore=DL3008
-RUN \
-      --mount=type=cache,target=/var/cache/apt,sharing=locked \
-      --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -yqq update \
       && apt-get -yqq upgrade \
       && apt-get -yqq install --no-install-recommends --no-install-suggests \
-        gcc gh git libc6-dev libncurses-dev make nodejs npm "python${PYTHON_VERSION}-dev" unzip
+        build-essential ca-certificates curl gh git gnupg jq lsb-release npm \
+        python3-pip ripgrep rsync software-properties-common tree unzip vim wget zsh
 
+# hadolint ignore=DL3013
 RUN \
-      curl -fsSL -o /usr/local/bin/print-github-tags \
-        https://raw.githubusercontent.com/dceoy/print-github-tags/master/print-github-tags \
-      && chmod +x /usr/local/bin/print-github-tags
+      --mount=type=cache,target=/root/.cache/pip \
+      python3 -m pip install --no-cache-dir --prefix=/usr/local \
+        checkov pipx uv zizmor yamllint
 
+# hadolint ignore=DL3016
 RUN \
-      --mount=type=cache,target=/root/.cache \
-      ln -s "python${PYTHON_VERSION}" /usr/bin/python \
-      && curl -fsSL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py \
-      && /usr/bin/python /tmp/get-pip.py \
-      && /usr/bin/python -m pip install -U --no-cache-dir --prefix=/usr/local \
-        pip pipx poetry uv \
-      && rm -f /tmp/get-pip.py
+      --mount=type=cache,target=/root/.cache/npm \
+      npm install -g pnpm
 
 RUN \
       --mount=type=cache,target=/root/.cache \
@@ -69,94 +43,102 @@ RUN \
       && rm -rf /tmp/awscliv2.zip /tmp/aws
 
 RUN \
-      curl -fsSL -o /usr/local/bin/oh-my-zsh \
-        https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh \
-      && chmod +x /usr/local/bin/oh-my-zsh
+      curl -fsSL https://checkpoint-api.hashicorp.com/v1/check/terraform \
+        | jq -r '.current_version' \
+        | xargs -t -I{} curl -fsSL -o /tmp/terraform.zip \
+          "https://releases.hashicorp.com/terraform/{}/terraform_{}_linux_$([[ "$(uname -m)" == 'x86_64' ]] && echo 'amd64' || echo 'arm64').zip" \
+      && unzip /tmp/terraform.zip -d /usr/local/bin \
+      && chmod +x /usr/local/bin/terraform \
+      && rm -f /tmp/terraform.zip
 
 RUN \
-      --mount=type=cache,target=/root/.cache \
-      curl -fsSL -o /usr/local/bin/install_latest_vim.sh \
-        https://raw.githubusercontent.com/dceoy/install-latest-vim/refs/heads/master/install_latest_vim.sh \
-      && curl -fsSL -o /usr/local/bin/update_vim_plugins.sh \
-        https://raw.githubusercontent.com/dceoy/install-latest-vim/refs/heads/master/update_vim_plugins.sh \
-      && chmod +x /usr/local/bin/install_latest_vim.sh /usr/local/bin/update_vim_plugins.sh \
-      && /usr/local/bin/install_latest_vim.sh --lua --python3="/usr/bin/python${PYTHON_VERSION}" --vim-plug /usr/local
-
-
-FROM public.ecr.aws/docker/library/ubuntu:${UBUNTU_VERSION} AS base
-
-ARG PYTHON_VERSION=3.13
-
-COPY --from=builder /usr/local /usr/local
-COPY --from=builder /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/keep-cache
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONIOENCODING=utf-8
-
-SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+      curl -fsSL https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest \
+        | jq -r '.tag_name' \
+        | xargs -t -I{} curl -fsSL -o /usr/local/bin/terragrunt \
+          "https://github.com/gruntwork-io/terragrunt/releases/download/{}/terragrunt_linux_$([[ "$(uname -m)" == 'x86_64' ]] && echo 'amd64' || echo 'arm64')" \
+      && chmod +x /usr/local/bin/terragrunt
 
 RUN \
-      ln -s "python${PYTHON_VERSION}" /usr/bin/python \
-      && rm -f /etc/apt/apt.conf.d/docker-clean
+      curl -fsSL https://api.github.com/repos/aquasecurity/trivy/releases/latest \
+        | jq -r '.tag_name' \
+        | tr -d v \
+        | xargs -t -I{} curl -fsSL -o /tmp/trivy.tar.gz \
+          "https://github.com/aquasecurity/trivy/releases/download/v{}/trivy_{}_Linux-$([[ "$(uname -m)" == 'x86_64' ]] && echo '64bit' || echo 'ARM64').tar.gz" \
+      && tar -xzf /tmp/trivy.tar.gz -C /usr/local/bin trivy \
+      && chmod +x /usr/local/bin/trivy \
+      && rm -f /tmp/trivy.tar.gz
 
-# hadolint ignore=DL3008
 RUN \
-      --mount=type=cache,target=/var/cache/apt,sharing=locked \
-      --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -yqq update \
-      && apt-get -yqq install --no-install-recommends --no-install-suggests \
-        software-properties-common \
-      && add-apt-repository ppa:deadsnakes/ppa
+      curl -fsSL -o /usr/local/bin/print-github-tags \
+        https://raw.githubusercontent.com/dceoy/print-github-tags/master/print-github-tags \
+      && chmod +x /usr/local/bin/print-github-tags
 
-COPY --from=builder /usr/share/keyrings/githubcli-archive-keyring.gpg /usr/share/keyrings/githubcli-archive-keyring.gpg
-COPY --from=builder /etc/apt/sources.list.d/github-cli.list /etc/apt/sources.list.d/github-cli.list
-
-# hadolint ignore=DL3008
 RUN \
-      --mount=type=cache,target=/var/cache/apt,sharing=locked \
-      --mount=type=cache,target=/var/lib/apt,sharing=locked \
-      apt-get -yqq update \
-      && apt-get -yqq upgrade \
-      && apt-get -yqq install --no-install-recommends --no-install-suggests \
-        build-essential ca-certificates colordiff curl gh git nodejs npm \
-        "python${PYTHON_VERSION}" sudo time tree wget zsh
+      curl -fsSL -o /usr/local/bin/install.ohmyz.sh https://install.ohmyz.sh \
+      && chmod +x /usr/local/bin/install.ohmyz.sh
 
-HEALTHCHECK NONE
-
-ENTRYPOINT ["/usr/bin/zsh"]
-
-
-FROM base AS cli
-
-ARG USER_NAME=cli
-ARG USER_UID=1001
-ARG USER_GID=1001
-
-# hadolint ignore=DL3016
 RUN \
-      --mount=type=cache,target=/root/.cache \
-      npm install -g \
-        @anthropic-ai/claude-code @github/copilot @google/gemini-cli @openai/codex
+      curl -fsSL -o /usr/local/bin/claude.ai.install.sh https://claude.ai/install.sh \
+      && chmod +x /usr/local/bin/claude.ai.install.sh
+
+RUN \
+      curl -fsSL -o /usr/local/bin/codex.install.sh https://chatgpt.com/codex/install.sh \
+      && chmod +x /usr/local/bin/codex.install.sh
+
+RUN \
+      curl -fsSL -o /usr/local/bin/antigravity.install.sh https://antigravity.google/cli/install.sh \
+      && chmod +x /usr/local/bin/antigravity.install.sh
+
+RUN \
+      curl -fsSL -o /usr/local/bin/cursor.install.sh https://cursor.com/install \
+      && chmod +x /usr/local/bin/cursor.install.sh
+
+RUN \
+      curl -fsSL -o /usr/local/bin/opencode.install.sh https://opencode.ai/install \
+      && chmod +x /usr/local/bin/opencode.install.sh
+
+RUN \
+      curl -fsSL -o /usr/local/bin/copilot.install.sh https://gh.io/copilot-install \
+      && chmod +x /usr/local/bin/copilot.install.sh
+
+RUN \
+      mkdir -p /opt/claude \
+      && chown "${USER_UID}:${USER_GID}" /opt/claude
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
       && useradd --uid "${USER_UID}" --gid "${USER_GID}" --shell /usr/bin/zsh --create-home "${USER_NAME}"
 
-USER ${USER_NAME}
-WORKDIR /home/${USER_NAME}
+HEALTHCHECK NONE
+
+
+FROM base AS cli
+
+ARG ZSH_THEME='nicoulaj'
+
+USER "${USER_NAME}"
+
+ENV PATH="/home/${USER_NAME}/.local/bin:${PATH}"
 
 RUN \
-      /usr/local/bin/oh-my-zsh --unattended \
-      && curl -fsSL -o "${HOME}/.oh-my-zsh/custom/themes/dceoy.zsh-theme" \
-        https://raw.githubusercontent.com/dceoy/ansible-dev-server/refs/heads/master/roles/cli/files/dceoy.zsh-theme \
-      && sed -ie 's/^ZSH_THEME=.*/ZSH_THEME="dceoy"/' "${HOME}/.zshrc"
+      --mount=type=cache,target=/home/${USER_NAME}/.npm \
+      /usr/local/bin/claude.ai.install.sh \
+      && /usr/local/bin/codex.install.sh \
+      && /usr/local/bin/antigravity.install.sh \
+      && /usr/local/bin/cursor.install.sh \
+      && /usr/local/bin/opencode.install.sh \
+      && /usr/local/bin/copilot.install.sh
 
+# hadolint ignore=SC2016
 RUN \
-      curl -fsSL -o "${HOME}/.vimrc" \
-        https://raw.githubusercontent.com/dceoy/ansible-dev-server/refs/heads/master/roles/vim/files/vimrc \
-      && /usr/local/bin/update_vim_plugins.sh
+      /usr/local/bin/install.ohmyz.sh --unattended \
+      && sed -ie "s/^ZSH_THEME=.*/ZSH_THEME='${ZSH_THEME}'/g" ~/.zshrc \
+      && rm -f ~/.zshrce \
+      && { \
+        echo 'alias l="ls"'; \
+        echo 'alias g="git"'; \
+        echo 'alias v="vim"'; \
+      } >> ~/.zprofile
 
 RUN \
       echo '.DS_Store' > "${HOME}/.gitignore" \
@@ -170,3 +152,19 @@ RUN \
       && git config --global push.default matching \
       && git config --global user.name "${USER_NAME}" \
       && git config --global user.email "${USER_NAME}@localhost"
+
+RUN \
+      rsync -a "${HOME}/" /opt/claude/
+
+RUN \
+      export CLAUDE_CONFIG_DIR='/opt/claude/.claude' \
+      && claude plugin marketplace add --scope=user anthropics/claude-plugins-official \
+      && claude plugin install --scope=user code-review@claude-plugins-official \
+      && claude plugin install --scope=user code-simplifier@claude-plugins-official \
+      && claude plugin install --scope=user commit-commands@claude-plugins-official \
+      && claude plugin install --scope=user pr-review-toolkit@claude-plugins-official \
+      && claude plugin install --scope=user security-guidance@claude-plugins-official \
+      && claude plugin marketplace add --scope=user anthropics/skills
+
+ENTRYPOINT ["claude"]
+CMD ["--permission-mode=auto"]
