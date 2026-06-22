@@ -35,7 +35,7 @@ RUN \
       --mount=type=cache,target=/root/.cache/npm \
       npm config set prefix /usr/local \
       && npm upgrade -g \
-      && npm install -g pnpm
+      && npm install -g bats pnpm
 
 RUN \
       --mount=type=cache,target=/root/.cache \
