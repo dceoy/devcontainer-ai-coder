@@ -32,7 +32,9 @@ RUN \
 # hadolint ignore=DL3016
 RUN \
       --mount=type=cache,target=/root/.cache/npm \
-      npm install -g pnpm
+      npm config set prefix /usr/local \
+      && npm upgrade -g \
+      && npm install -g pnpm
 
 RUN \
       --mount=type=cache,target=/root/.cache \
@@ -102,8 +104,8 @@ RUN \
       && chmod +x /usr/local/bin/copilot.install.sh
 
 RUN \
-      mkdir -p /opt/claude \
-      && chown "${USER_UID}:${USER_GID}" /opt/claude
+      mkdir -p /opt/agent \
+      && chown "${USER_UID}:${USER_GID}" /opt/agent
 
 RUN \
       groupadd --gid "${USER_GID}" "${USER_NAME}" \
@@ -115,6 +117,8 @@ HEALTHCHECK NONE
 FROM base AS cli
 
 ARG ZSH_THEME='nicoulaj'
+ARG CLAUDE_CODE_VERSION='latest'
+ARG CODEX_CLI_VERSION='latest'
 
 USER "${USER_NAME}"
 
@@ -122,8 +126,8 @@ ENV PATH="/home/${USER_NAME}/.local/bin:${PATH}"
 
 RUN \
       --mount=type=cache,target=/home/${USER_NAME}/.npm \
-      /usr/local/bin/claude.ai.install.sh \
-      && /usr/local/bin/codex.install.sh \
+      /usr/local/bin/claude.ai.install.sh "${CLAUDE_CODE_VERSION}" \
+      && /usr/local/bin/codex.install.sh --release "${CODEX_CLI_VERSION}" \
       && /usr/local/bin/antigravity.install.sh \
       && /usr/local/bin/cursor.install.sh \
       && /usr/local/bin/opencode.install.sh \
@@ -154,17 +158,19 @@ RUN \
       && git config --global user.email "${USER_NAME}@localhost"
 
 RUN \
-      rsync -a "${HOME}/" /opt/claude/
+      rsync -a "${HOME}/" /opt/agent/
 
 RUN \
-      export CLAUDE_CONFIG_DIR='/opt/claude/.claude' \
+      export CLAUDE_CONFIG_DIR='/opt/agent/.claude' \
       && claude plugin marketplace add --scope=user anthropics/claude-plugins-official \
       && claude plugin install --scope=user code-review@claude-plugins-official \
       && claude plugin install --scope=user code-simplifier@claude-plugins-official \
       && claude plugin install --scope=user commit-commands@claude-plugins-official \
       && claude plugin install --scope=user pr-review-toolkit@claude-plugins-official \
       && claude plugin install --scope=user security-guidance@claude-plugins-official \
-      && claude plugin marketplace add --scope=user anthropics/skills
+      && claude plugin marketplace add --scope=user anthropics/skills \
+      && claude plugin marketplace add --scope=user openai/codex-plugin-cc \
+      && claude plugin install --scope=user codex@openai-codex
 
 ENTRYPOINT ["claude"]
 CMD ["--permission-mode=auto"]
