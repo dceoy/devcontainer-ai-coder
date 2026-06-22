@@ -43,6 +43,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      id-token: write
     uses: dceoy/gh-actions-for-devops/.github/workflows/docker-build-and-push.yml@main  # zizmor: ignore[unpinned-uses]
     with:
       registry: ghcr.io
@@ -52,7 +53,21 @@ jobs:
       file: ./Dockerfile
       platforms: linux/amd64,linux/arm64
       push: true
-      scan-before-build: true
-      scan-after-build: false
+      scan-before-build: false
+      scan-after-build: true
     secrets:
       DOCKER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  dependabot-auto-merge:
+    if: >
+      github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+      checks: read
+      statuses: read
+    uses: dceoy/gh-actions-for-devops/.github/workflows/dependabot-auto-merge.yml@main  # zizmor: ignore[unpinned-uses]
+    with:
+      unconditional: true
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
