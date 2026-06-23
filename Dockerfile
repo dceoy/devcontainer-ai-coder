@@ -120,6 +120,8 @@ FROM base AS cli
 ARG ZSH_THEME='nicoulaj'
 ARG CLAUDE_CODE_VERSION='latest'
 ARG CODEX_CLI_VERSION='latest'
+ARG GIT_USER_NAME='agent'
+ARG GIT_USER_EMAIL='agent@localhost'
 
 USER "${USER_NAME}"
 
