@@ -125,16 +125,36 @@ ARG GIT_USER_EMAIL='agent@localhost'
 
 USER "${USER_NAME}"
 
-ENV PATH="/home/${USER_NAME}/.local/bin:${PATH}"
+ENV PATH="/home/${USER_NAME}/.local/bin:/home/${USER_NAME}/.opencode/bin:${PATH}"
 
 RUN \
-      --mount=type=cache,target=/home/${USER_NAME}/.npm \
-      /usr/local/bin/claude.ai.install.sh "${CLAUDE_CODE_VERSION}" \
-      && /usr/local/bin/codex.install.sh --release "${CODEX_CLI_VERSION}" \
-      && /usr/local/bin/antigravity.install.sh \
-      && /usr/local/bin/cursor.install.sh \
-      && /usr/local/bin/opencode.install.sh \
-      && /usr/local/bin/copilot.install.sh
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/claude.ai.install.sh "${CLAUDE_CODE_VERSION}"
+
+# hadolint ignore=DL3059
+RUN \
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/codex.install.sh --release "${CODEX_CLI_VERSION}"
+
+# hadolint ignore=DL3059
+RUN \
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/antigravity.install.sh
+
+# hadolint ignore=DL3059
+RUN \
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/cursor.install.sh
+
+# hadolint ignore=DL3059
+RUN \
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/opencode.install.sh
+
+# hadolint ignore=DL3059
+RUN \
+      --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
+      /usr/local/bin/copilot.install.sh
 
 # hadolint ignore=SC2016
 RUN \
