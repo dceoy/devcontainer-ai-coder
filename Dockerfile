@@ -147,10 +147,12 @@ RUN \
       --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
       /usr/local/bin/cursor.install.sh
 
-# hadolint ignore=DL3059,DL4006
+# hadolint ignore=DL3059,DL4006,SC2015
 RUN \
       --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
-      curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest \
+      [[ "${OPENCODE_VERSION}" != "latest" ]] \
+      && /usr/local/bin/opencode.install.sh --version "${OPENCODE_VERSION}" \
+      || curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest \
         | jq -r '.tag_name' \
         | xargs -t /usr/local/bin/opencode.install.sh --version
 
