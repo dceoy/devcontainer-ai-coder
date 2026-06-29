@@ -120,6 +120,7 @@ FROM base AS cli
 ARG ZSH_THEME='nicoulaj'
 ARG CLAUDE_CODE_VERSION='latest'
 ARG CODEX_CLI_VERSION='latest'
+ARG OPENCODE_VERSION='latest'
 ARG GIT_USER_NAME='agent'
 ARG GIT_USER_EMAIL='agent@localhost'
 
@@ -146,10 +147,12 @@ RUN \
       --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
       /usr/local/bin/cursor.install.sh
 
-# hadolint ignore=DL3059
+# hadolint ignore=DL3059,DL4006
 RUN \
       --mount=type=cache,target=/home/${USER_NAME}/.cache,uid="${USER_UID}",gid="${USER_GID}" \
-      /usr/local/bin/opencode.install.sh
+      curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest \
+        | jq -r '.tag_name' \
+        | xargs -t /usr/local/bin/opencode.install.sh --version
 
 # hadolint ignore=DL3059
 RUN \
